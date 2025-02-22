@@ -159,6 +159,8 @@ def fetch_cms_data(keyword="97530", offset=0, size=10):
     except requests.exceptions.RequestException as e:
         print(f"Error making request: {e}")
         return None
+    
+def gpt_t
 def get_queue(id: UUID) -> Queue:
     logger.info(f"Getting queue {id}")
     with queues_lock:
@@ -223,9 +225,9 @@ async def wait_for_analyze(id: UUID, request: Request):
             }
             return
         
-        #result_video_file = result["video_file"]
-        #videos[id] = result_video_file
-        #del result["video_file"]
+        result_video_file = result["video_file"]
+        videos[id] = result_video_file
+        del result["video_file"]
         
         yield {
             "event": "message",
