@@ -3,9 +3,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 
-interface LandingPageProps {
-  setIsApp: (value: boolean) =>  Dispatch<SetStateAction<boolean>>;
-}
+
 
 const PeopleSavedCard: React.FC = () => {
   const [savedAmount, setSavedAmount] = React.useState<number>(0)
@@ -38,16 +36,14 @@ const PeopleSavedCard: React.FC = () => {
           Add $1,000 (Demo)
         </Button>
       </CardContent>
-      <Button onClick= {() => 
-        setIsApp(true)
-      }>
-        Get Started On
-      </Button>
+     
+      
     </Card>
   )
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
+const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
+}) => {
   // Scroll to top on "Start Building Now" demo (or actual usage)
   const handleGetStarted = (): void => {
     setIsApp(true)
