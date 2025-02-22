@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "./components/ui/button";
 const AppPage = () => {
-  const BACKEND_URI = "https://localhost:8000";
+  const BACKEND_URI = "http://0.0.0.0:80";
   const [state, setState] = useState<
     | { state: "upload" }
     | { state: "uploading" }
@@ -40,7 +40,7 @@ const AppPage = () => {
               maxFiles={1}
               maxSize={1024 ** 2 * 50}
               accept={{
-                "image/*": [".jpeg", ".png"],
+                "image/*": [".jpeg", ".png", ".jpg"],
               }}
             >
               {({ getRootProps, getInputProps }) => (
@@ -96,7 +96,8 @@ const AppPage = () => {
             </Button>
           </div>
         ) : state.state === "analyzing" ? (
-          <div></div>
+          <div>Analyzing your Bill with our State of the Art, Advanced Algorithms</div>
+          
         ) : state.state === "result" ? (
           <div></div>
         ) : null}

@@ -1,10 +1,9 @@
 import React from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 
-interface LandingPageProps {
-  setIsApp: (value: boolean) => void
-}
+
 
 const PeopleSavedCard: React.FC = () => {
   const [savedAmount, setSavedAmount] = React.useState<number>(0)
@@ -37,11 +36,14 @@ const PeopleSavedCard: React.FC = () => {
           Add $1,000 (Demo)
         </Button>
       </CardContent>
+     
+      
     </Card>
   )
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
+const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
+}) => {
   // Scroll to top on "Start Building Now" demo (or actual usage)
   const handleGetStarted = (): void => {
     setIsApp(true)
@@ -111,7 +113,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
           </div>
         </div>
       </nav>
-
+     
       {/* 2. Add margin-top so content isn't hidden behind the nav */}
       <div className="mt-[120px]">
 
@@ -119,7 +121,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
         <div className="py-20 px-6 text-center scroll-mt-32">
           <PeopleSavedCard />
         </div>
-
+        <Button onClick= {() =>
+        handleGetStarted()
+      }>Get Started</Button>
         {/* Hero Section */}
         <div id="hero-section" className="py-20 px-6 text-center scroll-mt-32">
           {/* Upload Medical Bills Card */}

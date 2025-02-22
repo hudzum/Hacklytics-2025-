@@ -1,0 +1,8 @@
+fastapi[standard]>=0.113.0,<0.114.0
+pydantic>=2.7.0,<3.0.0
+ez-setup==0.9
+numpy==1.26.3
+uvicorn==0.27.0.post1
+multipledispatch==1.0.0
+sse_starlette==2.0.0
+google-cloud-documentai==3.0.0
