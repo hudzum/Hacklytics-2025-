@@ -1,0 +1,13 @@
+services:
+
+  backend:
+  
+    build: ./backend
+    container_name: backend_ChargeZero
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/backend/service-account-file.json
+    volumes:
+      - ./backend/service-account-file.json:/backend/app/service-account-file.json

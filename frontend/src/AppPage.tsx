@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "./components/ui/button";
 const AppPage = () => {
-  const BACKEND_URI = "https://localhost:8000";
+  const BACKEND_URI = "http://0.0.0.0:80";
   const [state, setState] = useState<
     | { state: "upload" }
     | { state: "uploading" }

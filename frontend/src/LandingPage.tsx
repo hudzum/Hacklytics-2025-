@@ -1,9 +1,10 @@
 import React from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 
 interface LandingPageProps {
-  setIsApp: (value: boolean) => void
+  setIsApp: (value: boolean) =>  Dispatch<SetStateAction<boolean>>;
 }
 
 const PeopleSavedCard: React.FC = () => {
@@ -37,6 +38,11 @@ const PeopleSavedCard: React.FC = () => {
           Add $1,000 (Demo)
         </Button>
       </CardContent>
+      <Button onClick= {() => 
+        setIsApp(true)
+      }>
+        Get Started On
+      </Button>
     </Card>
   )
 }
@@ -111,7 +117,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
           </div>
         </div>
       </nav>
-
+     
       {/* 2. Add margin-top so content isn't hidden behind the nav */}
       <div className="mt-[120px]">
 
@@ -119,7 +125,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
         <div className="py-20 px-6 text-center scroll-mt-32">
           <PeopleSavedCard />
         </div>
-
+        <Button onClick= {() =>
+        handleGetStarted()
+      }>fjdijsaof;jf;ioew</Button>
         {/* Hero Section */}
         <div id="hero-section" className="py-20 px-6 text-center scroll-mt-32">
           {/* Upload Medical Bills Card */}
