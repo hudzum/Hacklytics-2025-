@@ -2,7 +2,7 @@
 import  { useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
-
+import { Button } from './components/ui/button';
 interface DropzoneProps {
   required: boolean;
   name: string;
