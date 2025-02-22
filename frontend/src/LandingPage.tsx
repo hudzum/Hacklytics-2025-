@@ -1,10 +1,41 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { ArrowRight } from 'lucide-react';
 
 interface LandingPageProps {
   setIsApp: (value: boolean) => void;
 }
+
+const PeopleSavedCard: React.FC = () => {
+  const [savedAmount, setSavedAmount] = React.useState<number>(0)
+
+  // Example function to demonstrate increment
+  const handleIncrement = () => {
+    setSavedAmount((prev) => prev + 1000)
+  }
+
+  return (
+    <Card className="mx-auto max-w-3xl my-12 p-8 shadow-xl">
+      <CardHeader className="py-10">
+        <CardDescription className="text-center text-2xl font-semibold">
+          ChargeZero has helped save a total of         
+        </CardDescription>
+        <CardTitle className="text-center text-7xl font-extrabold">
+          ${savedAmount.toLocaleString()}
+        </CardTitle>
+        <CardDescription className="text-center text-2xl font-semibold">
+          on medical bills this year.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex justify-center">
+        <Button variant="outline" size="lg" className="text-xl px-6 py-3" onClick={handleIncrement}>
+          Add $1,000 (Demo)
+        </Button>
+      </CardContent>
+    </Card>
+  )  
+};
 
 const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
   const handleGetStarted = (): void => {
@@ -38,6 +69,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
         >
           About Us
         </Button>
+      </div>
+
+      {/* -- People Saved Card (Shadcn UI) -- */}
+      <div className="py-50 px-6 text-center">
+        <PeopleSavedCard />
       </div>
 
       {/* Hero Section */}
