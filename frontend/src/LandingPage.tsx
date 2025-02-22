@@ -127,7 +127,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
         </div>
         <Button onClick= {() =>
         handleGetStarted()
-      }>fjdijsaof;jf;ioew</Button>
+      }>Get Started</Button>
         {/* Hero Section */}
         <div id="hero-section" className="py-20 px-6 text-center scroll-mt-32">
           {/* Upload Medical Bills Card */}
