@@ -20,20 +20,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
-      {/* 1. "About Us" Button on the Top Left */}
-      <div className="absolute top-4 left-4">
-      <Button 
-        variant="outline" 
-        onClick={handleAboutUs} 
-        className="text-white border-white"
-      >
-        About Us
-      </Button>
-    </div>
+    <div className="w-full min-h-screen bg-blue-100 relative">
+      {/* 1. Logo & "About Us" Button Container */}
+      <div className="absolute top-4 left-4 flex items-center gap-4">
+        {/* Scaled Logo (3× larger) */}
+        <img 
+          src="/src/assets/images/ChargeZero.png"
+          alt="Logo"
+          className="h-36 w-auto"
+        />
+
+        {/* White "About Us" Button */}
+        <Button 
+          variant="outline" 
+          onClick={handleAboutUs} 
+          className="text-white border-white"
+        >
+          About Us
+        </Button>
+      </div>
 
       {/* Hero Section */}
-      <div className="py-24 px-6 text-center bg-white">
+      <div className="py-100 px-6 text-center">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-5xl font-bold tracking-tight mb-8">
             Build something amazing with our platform
@@ -57,16 +65,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
       {/* 7. Darker (But Still Light) Blue Background */}
       <div
         id="features-section"
-        className="py-24 px-6 bg-blue-200"
+        className="py-24 px-6 bg-blue-200 w-full"
       >
         <div className="max-w-6xl mx-auto">
           {/* 1. Logo scaled 3× (h-36) + 2. Title Centered (text-center) */}
           <div className="flex flex-col md:flex-row items-center mb-12">
-            <img
-              src="/src/assets/images/ChargeZero.png"
-              alt="Logo"
-              className="h-36 w-auto md:mr-4 mb-4 md:mb-0"
-            />
             <h2 className="text-3xl font-bold text-center w-full">
               Why Choose Our Platform?
             </h2>
@@ -139,7 +142,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-24 px-6 bg-white">
+      <div className="py-24 px-6 bg-blue-100 w-full">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Ready to get started?

@@ -1,4 +1,10 @@
 
+html, body {
+  margin: 0;
+  padding: 0;
+  /* Force the background color to be blue */
+  background-color: #DBEAFE; /* or Tailwind's bg-blue-100 hex */
+}
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
