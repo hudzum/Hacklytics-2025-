@@ -16,7 +16,7 @@ const PeopleSavedCard: React.FC = () => {
   }
 
   return (
-    <Card className="mx-auto max-w-3xl my-12 p-8 shadow-xl">
+    <Card className="mx-auto max-w-3xl my-12 p-8 shadow-xl ">
       <CardHeader className="py-10">
         <CardDescription className="text-center text-2xl font-semibold">
           ChargeZero has helped save a total of         
@@ -51,7 +51,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-blue-100 relative">
+    <div className="w-full min-h-screen relative">
       {/* 1. Logo & "About Us" Button Container */}
       <div className="absolute top-4 left-4 flex items-center gap-4">
         {/* Scaled Logo (3× larger) */}
@@ -101,7 +101,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
       {/* 7. Darker (But Still Light) Blue Background */}
       <div
         id="features-section"
-        className="py-24 px-6 bg-blue-200 w-full"
+        className="py-24 px-6 w-full"
       >
         <div className="max-w-6xl mx-auto">
           {/* 1. Logo scaled 3× (h-36) + 2. Title Centered (text-center) */}
@@ -178,7 +178,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
       </div>
 
       {/* CTA Section */}
-      <div className="py-24 px-6 bg-blue-100 w-full">
+      <div className="py-24 px-6 w-full">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Ready to get started?
