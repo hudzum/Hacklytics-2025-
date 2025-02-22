@@ -1,7 +1,6 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { ArrowRight } from 'lucide-react'
 
 interface LandingPageProps {
   setIsApp: (value: boolean) => void
@@ -31,11 +30,8 @@ const PeopleSavedCard: React.FC = () => {
       <CardContent className="flex justify-center">
         <Button 
           size="lg" 
-          className="text-xl px-6 py-3 
-                     border border-white 
-                     text-black bg-transparent 
-                     hover:bg-black hover:text-white
-                     transition-all duration-1000 ease-in-out"
+          style={{ transition: 'all 0.3s ease-in-out' }}
+          className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
           onClick={handleIncrement}
         >
           Add $1,000 (Demo)
@@ -82,28 +78,32 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
           <div className="flex gap-4">
             {/* About Us -> features-section */}
             <Button
-              className="border border-white text-black bg-transparent hover:bg-black hover:text-white transition-all duration-1000 ease-in-out"
+              style={{ transition: 'all 0.3s ease-in-out' }}
+              className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
               onClick={() => scrollToSection("features-section")}
             >
               About Us
             </Button>
             {/* Hero Section -> hero-section */}
             <Button
-              className="border border-white text-black bg-transparent hover:bg-black hover:text-white transition-all duration-1000 ease-in-out"
+              style={{ transition: 'all 0.3s ease-in-out' }}
+              className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
               onClick={() => scrollToSection("hero-section")}
             >
               Start Saving Now
             </Button>
             {/* User Reviews -> user-reviews */}
             <Button
-              className="border border-white text-black bg-transparent hover:bg-black hover:text-white transition-all duration-1000 ease-in-out"
+              style={{ transition: 'all 0.3s ease-in-out' }}
+              className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
               onClick={() => scrollToSection("user-reviews")}
             >
               User Reviews
             </Button>
             {/* Contact -> contact-section */}
             <Button
-              className="border border-white text-black bg-transparent hover:bg-black hover:text-white transition-all duration-1000 ease-in-out"
+              style={{ transition: 'all 0.3s ease-in-out' }}
+              className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
               onClick={() => scrollToSection("contact-section")}
             >
               Contact Us
@@ -139,12 +139,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-lg 
-                           border border-white 
-                           text-black bg-transparent 
-                           hover:bg-black hover:text-white 
-                           transition-all duration-1000 ease-in-out
-                           px-6 py-4"
+                style={{ transition: 'all 0.3s ease-in-out' }}
+                className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
               >
                 Choose File
               </Button>
@@ -259,7 +255,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ setIsApp }) => {
       {/* Return to Top bottom-right */}
       <div className="absolute bottom-4 right-4">
         <Button
-          className="border border-white text-black bg-transparent hover:bg-black hover:text-white transition-all duration-1000 ease-in-out"
+          style={{ transition: 'all 0.3s ease-in-out' }}
+          className="border border-white text-black bg-transparent hover:bg-black hover:text-white"
           onClick={handleScrollToTop}
         >
           Return to Top
