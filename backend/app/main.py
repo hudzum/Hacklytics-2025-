@@ -13,10 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from sse_starlette import EventSourceResponse
 from uuid import UUID
 import mimetypes
+import json
 
 import requests
 
-from typing import Optional
+from typing import Optional, Sequence
 
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai  # type: ignore
@@ -50,10 +51,39 @@ project_id = "hacklyticsproject-451705"
 location = "us" # Format is "us" or "eu"
 processor_id = "a1efeaa2236c6ae7" # Create processor before running sample
 field_mask = "text,entities,pages.pageNumber"  # Optional. The fields to return in the Document object.
-processor_version_id = "pretrained-expense-v1.4.2-2024-09-12" # Optional. Processor version to use
+processor_version_id = "d316a104cd3131bb" # Optional. Processor version to use
+
+def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str):
+    with queues_lock:
+        queues[id] = Queue(1)
+    try:
+        print("Calling Document AI")
+        itemList = document2JSON(project_id, location, processor_id, document_bytes ,extension, field_mask, processor_version_id, mimetype)
+        print("Completed Document Scan")
+
+        print("Calling CMS API")
+
+        print("Chatgpt")
+
+        
+        something = fetch_cms_data()
 
 
-def process_document_sample(
+
+
+        with queues_lock:
+            # Replace the object with real results
+            queues[id].put_nowait({ "result": "success", "feedback": feedback, "email_text": result_video_file }) #Whatever outputs we want 
+    except Exception as e:
+        logger.error(e)
+        with queues_lock:
+            # Send failure
+            queues[id].put_nowait({ "result": "fail", "message": "Failed Overal" })
+    finally:
+        with queues_lock:
+            del queues[id]
+
+def document2JSON(
     project_id: str,
     location: str,
     processor_id: str,
@@ -64,8 +94,7 @@ def process_document_sample(
     mimetype:  Optional[str] = None,
 ) -> None:
     user_document_file = tempfile.NamedTemporaryFile(suffix=extension)
-    with queues_lock:
-        queues[id] = Queue(1)
+   
     try:
         # Analyze video here
         print("writing vid")
@@ -107,7 +136,7 @@ def process_document_sample(
             )
         )
 
-    # Configure the process request
+        # Configure the process request
         request = documentai.ProcessRequest(
             name=name,
             raw_document=raw_document,
@@ -120,47 +149,88 @@ def process_document_sample(
         # For a full list of `Document` object attributes, reference this page:
         # https://cloud.google.com/document-ai/docs/reference/rest/v1/Document
         document = result.document
+        print("PRinging form field2")
 
-        # Read the text recognition output from the processor
-        print("The document contains the following text:")
-        print(document.text)
+        document_dict = documentai.Document.to_dict(document)
+        result2 =[]
+        for entity in document.entities:
+            cost = None
+            name = None
+            code = None
+            if entity.properties:
+               for property in entity.properties:
+                if property.type_ == "line_item/description":
+                    name = property.text_anchor.content
+                if property.type_ == "line_item/amount":
+                    cost = property.text_anchor.content
+                if property.type_ == "line_item/product_code":
+                    code = property.text_anchor.content
+                
+                # if(name!= None and cost!= None):
+                #     print((name, cost))
+                # if there is a code AND a name, do the stuff
+            if code == None and name == None:
+                continue
+            line_itme = {"cost" :cost,
+                    "name" :name,
+                    "code" :code
+                    }
+            result2.append(line_itme)
+              
+      
+       
+        print(len(result2))
+        print(result2)
+        return result2
+        
+    
+        
     except Exception as e:
         logger.error(e)
         with queues_lock:
             # Send failure
-            queues[id].put_nowait({ "result": "fail", "message": "Failed" })
+            queues[id].put_nowait({ "result": "fail", "message": "Failed at Process Document" })
     finally:
         user_document_file.close()
-        with queues_lock:
-            del queues[id]
+      
+
+
+#returns list wehre first double is average of Avg_Sbmtd_Chrg(charge before insurance) and the second oen is Avg_Mdcr_Pymt_Amt which is the total amount the patient needs to pay our of pocket
+def fetch_cms_data(cpt_code):
+    url = rf"https://data.cms.gov/data-api/v1/dataset/92396110-2aed-4d63-a6a2-5d6207d46a29/data?keyword={cpt_code}&offset=0&size=10"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        total_submitted = 0
+        total_medicare = 0
+        count = 0
+
+        for line in data:
+            if 'Avg_Sbmtd_Chrg' in line and 'Avg_Mdcr_Pymt_Amt' in line:
+                try:
+                    total_submitted += float(line['Avg_Sbmtd_Chrg'])
+                    total_medicare += float(line['Avg_Mdcr_Pymt_Amt'])
+                    count += 1
+                except ValueError:
+                    print(f"Skipping invalid entry number {count} for {cpt_code}")
+        
+        if count > 0:
+            avg_submitted = total_submitted / count
+            avg_medicare = total_medicare / count
+            return [avg_submitted, avg_medicare]
+        else:
+            print("No valid data found.")
+            return None
+    
+    else:
+        print(f"Failed to connect to the API. Status code: {response.status_code}")
+        return None
+
+
 
             
-def fetch_cms_data(keyword="97530", offset=0, size=10):
-    base_url = "https://data.cms.gov/data-api/v1/dataset/4f307be4-6868-4a9e-ae92-acf3fd4b5543/data"
-    
-    # Define parameters
-    params = {
-        "keyword": keyword,
-        "additionalProp1": "{}",
-        "offset": offset,
-        "size": size
-    }
-    
-    try:
-        # Make the GET request
-        response = requests.get(base_url, params=params)
-        
-        # Raise an exception for bad status codes
-        response.raise_for_status()
-        
-        # Return JSON response
-        return response.json()
-        
-    except requests.exceptions.RequestException as e:
-        print(f"Error making request: {e}")
-        return None
-    
-def gpt_t
+
 def get_queue(id: UUID) -> Queue:
     logger.info(f"Getting queue {id}")
     with queues_lock:
@@ -195,8 +265,8 @@ async def upload(req: Request, ):
     start_id = uuid.uuid4()
     id = await get_running_loop().run_in_executor(None, lambda: unique_uuid(start_id))
 
-    
-    get_running_loop().run_in_executor(None, lambda: process_document_sample(project_id, location, processor_id, document_bytes,extension, field_mask, processor_version_id, mimetype))
+    #document_bytes, mimetype, extension
+    get_running_loop().run_in_executor(None, lambda: full_analyze(id, document_bytes, extension, mimetype))
     
     # Return id which client uses to check on the analyzing
     return { "id": id }
@@ -208,7 +278,7 @@ async def wait_for_analyze(id: UUID, request: Request):
     
     async def event_generator():
         if queue is None:
-            yield { "result": "fail", "message": "Failed" }
+            yield { "result": "fail", "message": "Failed: Queue is None" }
             return
 
         if await request.is_disconnected():
@@ -225,7 +295,7 @@ async def wait_for_analyze(id: UUID, request: Request):
             }
             return
         
-        result_video_file = result["video_file"]
+        result_video_file = result["email_text"]
         videos[id] = result_video_file
         del result["video_file"]
         
