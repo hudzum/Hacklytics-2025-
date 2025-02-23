@@ -92,14 +92,15 @@ export function UserReviewsSection() {
   const visibleReviews = reviews.slice(0, visibleCount)
 
   return (
-    <div className="py-24 px-6 w-full scroll-mt-32">
+    <div className="py-12 px-6 w-full scroll-mt-32">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-6">User Reviews</h2>
         <div className="text-center mb-6">
           <Button
             variant="outline"
             onClick={handleAddReviewClick}
-            className="border border-black text-black bg-transparent hover:bg-black hover:text-white transition-colors duration-500"
+            style={{ transition: 'all 0.3s ease-in-out' }}
+          className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
           >
             {showForm ? "Cancel" : "Add User Review"}
           </Button>
@@ -156,7 +157,8 @@ export function UserReviewsSection() {
             </div>
             <Button
               type="submit"
-              className="border border-black text-black bg-transparent hover:bg-black hover:text-white transition-colors duration-500"
+              style={{ transition: 'all 0.3s ease-in-out' }}
+            className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
             >
               Submit Review
             </Button>
