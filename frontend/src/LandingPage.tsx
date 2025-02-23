@@ -146,7 +146,7 @@ const LandingPage = ({
                   <HoverCard
                     title="Introducing ClaimCure"
                     description="Understanding your struggle, with the help of AI, ClaimCure is here to ensure fairness and reduce the burden of medical debt."
-                    imageSrc="/images/feature4.jpg"
+                    imageSrc="/assets/images/Card4.png"
                   />
                 </div>
               </div>
@@ -155,7 +155,7 @@ const LandingPage = ({
                   <HoverCard
                     title="How ClaimCure Operates"
                     description="Our smart technology analyzes your charges, identifies potential overbilling, generates and sends personalized dispute emails to hospitals on your behalf—helping you challenge excessive charges and secure fairer billing."
-                    imageSrc="/images/feature5.jpg"
+                    imageSrc="/assets/images/Card5.png"
                   />
                 </div>
                 <div className="md:w-1/3" />
@@ -180,8 +180,8 @@ const LandingPage = ({
         className="absolute bottom-2 left-4 text-sm text-gray-700"
       >
         Contact us:{" "}
-        <a href="mailto:chargezero@gmail.com" className="underline">
-          chargezero@gmail.com
+        <a href="mailto:claimcure@gmail.com" className="underline">
+          claimcure@gmail.com
         </a>
       </div>
       <div className="absolute bottom-2 right-4">

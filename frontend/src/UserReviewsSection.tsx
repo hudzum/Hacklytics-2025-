@@ -211,7 +211,7 @@ function ReviewCard({
         </CardTitle>
         {review.moneySaved && (
           <CardDescription className="text-2xl font-normal">
-            ChargeZero helped {review.firstName} saved ${review.moneySaved.toLocaleString()}
+            ClaimCure helped {review.firstName} saved ${review.moneySaved.toLocaleString()}
           </CardDescription>
         )}
       </CardHeader>
