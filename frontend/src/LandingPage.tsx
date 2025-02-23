@@ -82,8 +82,8 @@ const LandingPage = ({
         <div className="bg-[url('/assets/images/AI_BACKGROUND.jpg')] bg-cover bg-center h-screen w-full bg-opacity-50">
         <h1 className="text-center text-6xl md:text-8xl lg:text-9xl font-bold leading-[1.1] pt-50 text-black ai-glow">
               Your AI Advocate <br /> for Lower Medical Bills
-            </h1>
-            <p className="text-center italic text-2xl text-gray-600 font-[Cormorant Garamond] my-6">
+          </h1>
+          <p className="text-center italic text-2xl text-gray-600 font-[Cormorant Garamond] my-6">
               Heal with care, pay what's fair!
             </p>
             <div className="flex justify-center">
