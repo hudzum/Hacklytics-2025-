@@ -29,6 +29,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: Arial, sans-serif;
 }
 
 h1 {
@@ -65,4 +66,16 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.claimcure {
+  font-weight: bold;
+}
+
+.claim {
+  color: #60A5FA;
+}
+
+.cure {
+  color: red;
 }

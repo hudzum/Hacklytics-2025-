@@ -70,10 +70,14 @@ const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
           {/* Logo */}
           <div className="flex items-center gap-4">
             <img
-              src="/src/assets/images/ChargeZero.png"
+              src="/src/assets/images/ClaimCure.png"
               alt="Logo"
               className="h-24 w-auto"
             />
+              <span className="claimcure text-3xl font-bold">
+                <span className="claim">Claim</span>
+                <span className="cure">Cure</span>
+              </span>
           </div>
 
           {/* Navigation Buttons */}
@@ -153,7 +157,7 @@ const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
         </div>
 
         {/* Features Section */}
-        <div id="features-section" className="py-24 px-6 w-full scroll-mt-32">
+        <div id="features-section" className="py-12 px-6 w-full scroll-mt-32">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row items-center mb-12">
               <h2 className="text-3xl font-bold text-center w-full">
