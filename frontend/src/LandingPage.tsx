@@ -2,7 +2,7 @@ import React from 'react'
 import { Dispatch, SetStateAction } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-
+import { UserReviewsSection } from './UserReviewsSection'
 
 
 const PeopleSavedCard: React.FC = () => {
@@ -70,10 +70,14 @@ const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
           {/* Logo */}
           <div className="flex items-center gap-4">
             <img
-              src="/src/assets/images/ChargeZero.png"
+              src="/src/assets/images/ClaimCure.png"
               alt="Logo"
               className="h-24 w-auto"
             />
+              <span className="claimcure text-3xl font-bold">
+                <span className="claim">Claim</span>
+                <span className="cure">Cure</span>
+              </span>
           </div>
 
           {/* Navigation Buttons */}
@@ -153,7 +157,7 @@ const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
         </div>
 
         {/* Features Section */}
-        <div id="features-section" className="py-24 px-6 w-full scroll-mt-32">
+        <div id="features-section" className="py-12 px-6 w-full scroll-mt-32">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row items-center mb-12">
               <h2 className="text-3xl font-bold text-center w-full">
@@ -227,21 +231,7 @@ const LandingPage = ({ setIsApp }:{ setIsApp: Dispatch<SetStateAction<boolean>>;
         </div>
 
         {/* User Reviews Section */}
-        <div id="user-reviews" className="py-24 px-6 w-full scroll-mt-32">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-6">User Reviews</h2>
-            <p className="text-xl text-gray-600 text-center">
-              See what our users are saying about ChargeZero!
-            </p>
-            {/* Placeholder for future user reviews */}
-            <div className="mt-8 p-6 bg-white shadow-md rounded-lg">
-              <p className="text-lg text-gray-700">
-                "ChargeZero helped me save over $3,500 in medical bills! Highly recommend."
-              </p>
-              <p className="text-right text-gray-500 mt-2">- Alex J.</p>
-            </div>
-          </div>
-        </div>
+        <UserReviewsSection />
       </div>
 
       {/* Contact Section and "Return to Top" Button */}
