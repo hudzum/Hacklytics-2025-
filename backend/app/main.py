@@ -58,13 +58,14 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
         queues[id] = Queue(1)
     try:
         print("Calling Document AI")
-        process_document_sample(project_id, location, processor_id, document_bytes ,extension, field_mask, processor_version_id, mimetype)
+        itemList = document2JSON(project_id, location, processor_id, document_bytes ,extension, field_mask, processor_version_id, mimetype)
         print("Completed Document Scan")
 
         print("Calling CMS API")
 
+        print("Chatgpt")
 
-        #
+        
         something = fetch_cms_data()
 
 
@@ -82,7 +83,7 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
         with queues_lock:
             del queues[id]
 
-def process_document_sample(
+def document2JSON(
     project_id: str,
     location: str,
     processor_id: str,
@@ -151,10 +152,7 @@ def process_document_sample(
         print("PRinging form field2")
 
         document_dict = documentai.Document.to_dict(document)
-        print("yfuah")
-        costs = []
-        names = []
-        codes = []
+        result2 =[]
         for entity in document.entities:
             cost = None
             name = None
@@ -170,43 +168,22 @@ def process_document_sample(
                 
                 # if(name!= None and cost!= None):
                 #     print((name, cost))
-            costs.append(cost)
-            names.append(name)
-            codes.append(code)
-
-        # create json with the given arrays
-        result = []
-        for i in range(len(names)):
-            result.append({
-                "name":names[i],
-                "cost":costs[i],
-                "code":codes[i]
-            })
-        return result
-        
-        
-
-            
-
-        """
-        text = document.text
-        # Read the text recognition output from the processor
-        print("Analyzed text")
-        print(document.text)
+                # if there is a code AND a name, do the stuff
+            if code == None and name == None:
+                continue
+            line_itme = {"cost" :cost,
+                    "name" :name,
+                    "code" :code
+                    }
+            result2.append(line_itme)
+              
+      
        
-        for page in document.pages:
-            print("Symbols")
-            if page.symbols:
-                print_symbols(page.symbols, text)
-
-            print("Image Quality")
-            if page.image_quality_scores:
-                print_image_quality_scores(page.image_quality_scores)
-
-            print("Visual Elements")
-            if page.visual_elements:
-                print_visual_elements(page.visual_elements, text) 
-        """
+        print(len(result2))
+        print(result2)
+        return result2
+        
+    
         
     except Exception as e:
         logger.error(e)
@@ -216,57 +193,6 @@ def process_document_sample(
     finally:
         user_document_file.close()
       
-def print_symbols(
-    symbols: Sequence[documentai.Document.Page.Symbol], text: str
-) -> None:
-    print(f"    {len(symbols)} symbols detected:")
-    first_symbol_text = layout_to_text(symbols[0].layout, text)
-    print(f"        First symbol text: {repr(first_symbol_text)}")
-    last_symbol_text = layout_to_text(symbols[-1].layout, text)
-    print(f"        Last symbol text: {repr(last_symbol_text)}")
-
-
-def print_image_quality_scores(
-    image_quality_scores: documentai.Document.Page.ImageQualityScores,
-) -> None:
-    print(f"    Quality score: {image_quality_scores.quality_score:.1%}")
-    print("    Detected defects:")
-
-    for detected_defect in image_quality_scores.detected_defects:
-        print(f"        {detected_defect.type_}: {detected_defect.confidence:.1%}")
-
-
-def print_visual_elements(
-    visual_elements: Sequence[documentai.Document.Page.VisualElement], text: str
-) -> None:
-    """
-    Only supported in version `pretrained-ocr-v2.0-2023-06-02`
-    """
-    checkboxes = [x for x in visual_elements if "checkbox" in x.type]
-    math_symbols = [x for x in visual_elements if x.type == "math_formula"]
-
-    if checkboxes:
-        print(f"    {len(checkboxes)} checkboxes detected:")
-        print(f"        First checkbox: {repr(checkboxes[0].type)}")
-        print(f"        Last checkbox: {repr(checkboxes[-1].type)}")
-
-    if math_symbols:
-        print(f"    {len(math_symbols)} math symbols detected:")
-        first_math_symbol_text = layout_to_text(math_symbols[0].layout, text)
-        print(f"        First math symbol: {repr(first_math_symbol_text)}")
-
-def layout_to_text(layout: documentai.Document.Page.Layout, text: str) -> str:
-    """
-    Document AI identifies text in different parts of the document by their
-    offsets in the entirety of the document"s text. This function converts
-    offsets to a string.
-    """
-    # If a text segment spans several lines, it will
-    # be stored in different text segments.
-    return "".join(
-        text[int(segment.start_index) : int(segment.end_index)]
-        for segment in layout.text_anchor.text_segments
-    )
 
 
 #returns list wehre first double is average of Avg_Sbmtd_Chrg(charge before insurance) and the second oen is Avg_Mdcr_Pymt_Amt which is the total amount the patient needs to pay our of pocket
