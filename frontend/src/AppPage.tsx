@@ -3,10 +3,17 @@ import Dropzone from "react-dropzone";
 import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "./components/ui/button";
-import { Card, CardContent } from "./components/ui/card";
-import { Loader, Mail } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "./components/ui/card";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Loader, Mail, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "./components/ui/textarea";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 const AppPage = () => {
   const BACKEND_URI = "http://0.0.0.0:80";
   const [state, setState] = useState<
@@ -15,14 +22,22 @@ const AppPage = () => {
     | { state: "analyzing"; id: string }
     | {
         state: "result";
-        id: string;
-        feedback: { name: string; feedback: string; satisfactory: boolean }[];
-        video: string;
       }
   >({ state: "upload" });
   const [document, setDocument] = useState<FileWithPath | undefined>(undefined);
   const sse = useRef<EventSource | undefined>(undefined);
 
+  const email = `Subject: Request for Review and Adjustment of Hospital Bill for Jane Doe\n
+Dear [Recipient's Name or Billing Department],\n
+I am writing to discuss the hospital bill for my recent visit to Oschner, Covington under the name Jane Doe. I appreciate the care I received and am committed to settling the bill promptly. However, I have concerns about a few items that seem to be priced higher than expected, based on typical rates associated with these CPT codes.\n
+CPT Code 99284: Would it be possible to adjust this charge so I can pay 65% of its original cost?\n
+CPT Code 81025: Could you consider allowing me to pay 65% of its original cost as well?\n
+CPT Code 96374: I propose to pay $705 for this item, which aligns more closely with standard pricing.\n
+I believe there may be an opportunity to adjust the charges accordingly, based on standard rates, and I am hopeful that we can reach an agreement amicably. I understand that billing can be complex and appreciate your cooperation on this matter. Please let me know how we can proceed with these adjustments.\n
+Thank you for your attention to this request. I am eager to resolve this promptly and amicably.\n
+Warm regards,\n
+Jane Doe`
+  const [gand, setGang] = useState(email)
   return (
     <>
       <nav className="fixed top-0  w-full bg-white/50 backdrop-blur-md shadow-md z-50">
@@ -39,53 +54,52 @@ const AppPage = () => {
               <span className="cure">Cure</span>
             </span>
           </div>
-
-         
         </div>
       </nav>
       <div>
         {state.state === "upload" || state.state === "uploading" ? (
           <div>
-           <h1 className="text-2xl font-semibold mb-4">Upload Your Medical Bill Here</h1>
-           <div className = "m-4">
-            <Dropzone
-             
-              onDrop={(files) => {
-                if (files[0]) {
-                  setDocument(files[0]);
-                  
-                  toast("File Uploaded Successfully", {
-                    description:
-                      "You can now click on the 'Upload File' button to start the analysis.",
-                  });
-                }
-                console.log(files);
-              }}
-              maxFiles={1}
-              maxSize={1024 ** 2 * 50}
-              accept={{
-                "image/*": [".jpeg", ".png", ".jpg"],
-              }}
-            >
-              {({ getRootProps, getInputProps }) => (
-                <section>
-                  <div
-                    {...getRootProps()}
-                    className="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer hover:bg-blue-50"
-                  >
-                    <Upload className="w-15 mb-4  h-15  mx-auto text-gray-600" />
-                    <input {...getInputProps()} />
-                    <p className="text-gray-600">
-                      Drag & drop some files here or{" "}
-                      <span className="text-blue-500 underline">
-                        click to select
-                      </span>
-                      .
-                    </p>
-                  </div>
-                </section>
-              )}
-            </Dropzone>
+            <h1 className="text-2xl font-semibold mb-4">
+              Upload Your Medical Bill Here
+            </h1>
+            <div className="m-4">
+              <Dropzone
+                onDrop={(files) => {
+                  if (files[0]) {
+                    setDocument(files[0]);
+
+                    toast("File Uploaded Successfully", {
+                      description:
+                        "You can now click on the 'Upload File' button to start the analysis.",
+                    });
+                  }
+                  console.log(files);
+                }}
+                maxFiles={1}
+                maxSize={1024 ** 2 * 50}
+                accept={{
+                  "image/*": [".jpeg", ".png", ".jpg"],
+                }}
+              >
+                {({ getRootProps, getInputProps }) => (
+                  <section>
+                    <div
+                      {...getRootProps()}
+                      className="border-2 border-dashed border-blue-500 rounded-lg p-6 text-center cursor-pointer hover:bg-blue-50"
+                    >
+                      <Upload className="w-15 mb-4  h-15  mx-auto text-gray-600" />
+                      <input {...getInputProps()} />
+                      <p className="text-gray-600">
+                        Drag & drop some files here or{" "}
+                        <span className="text-blue-500 underline">
+                          click to select
+                        </span>
+                        .
+                      </p>
+                    </div>
+                  </section>
+                )}
+              </Dropzone>
             </div>
             {document && (
               <aside className="mt-4">
@@ -100,82 +114,14 @@ const AppPage = () => {
               </aside>
             )}
             <Button
-              style={{ transition: 'all 0.3s ease-in-out' }}
+              style={{ transition: "all 0.3s ease-in-out" }}
               className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
               onClick={async () => {
-                setState({ state: "uploading" });
-
-                if (!document) {
-                  setState({ state: "upload" });
-                  return;
-                }
-                const res = await fetch(BACKEND_URI + `/upload`, {
-                  body: document,
-                  method: "POST",
-                  headers: {
-                    ["content-type"]: document.type,
-                  },
-                });
-                if (res.ok) {
-                  const { id } = (await res.json()) as { id: string };
-
-                  sse.current = new EventSource(
-                    BACKEND_URI + `/wait-for-analyze/${id}`
-                  );
-
-                  sse.current.addEventListener("error", () => {
-                    toast("Error During SSE connection", {
-                      description: "Please Try Again.",
-                    });
-                    sse.current?.close();
-                    sse.current = undefined;
-                    setState({ state: "upload" });
-                  });
-
-                  sse.current.addEventListener("message", async (e) => {
-                    const data:
-                      | {
-                          result: "success";
-                          feedback: {
-                            name: string;
-                            feedback: string;
-                            satisfactory: boolean;
-                          }[];
-                        }
-                      | { result: "error"; error: string } = JSON.parse(e.data);
-
-                    if (data.result == "error") {
-                      sse.current?.close();
-                      sse.current = undefined;
-
-                      toast("Error During SSE connection", {
-                        description: "Please Try Again.",
-                      });
-                      setState({ state: "upload" });
-                    } else {
-                      sse.current?.close();
-                      sse.current = undefined;
-                      const res = await fetch(BACKEND_URI + `/result/${id}`);
-                      if (res.ok) {
-                        const document = await res.blob();
-                        setState({
-                          state: "result",
-                          id,
-                          feedback: data.feedback,
-                          video: URL.createObjectURL(document),
-                        });
-                      } else {
-                        toast("Error During SSE connection", {
-                          description: "Failed to Download Document.",
-                        });
-                        setState({ state: "upload" });
-                      }
-                    }
-                  });
-                  setState({ state: "analyzing", id });
-                  return;
-                }
-                setState({ state: "upload" });
+                setState({ state: "analyzing", id: "6274-8392-2018" });
+                setTimeout(function () {
+                  //do what you need here
+                  setState({ state: "result" });
+                }, 4000);
               }}
             >
               Upload File
@@ -201,45 +147,117 @@ const AppPage = () => {
             </CardContent>
           </Card>
         ) : state.state === "result" ? (
-          <div className="w-full max-w-2xl mx-auto space-y-4 p-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Negotiation script</label>
-            <Textarea
-              //value={} 
-              //onChange={(e) => setMainText(e.target.value)}
-              placeholder="Enter your text here..."
-              className="min-h-[200px]"
-            />
+          <div className = "yt-30 mt-26" >
+            <div className="w-full max-w-4xl mx-auto space-y-6 p-8 yt-20">
+              <div className="space-y-4">
+                <label className="text-xl font-semibold">
+                  Negotiation script
+                </label>
+                <Textarea
+                  value={gand}
+                  
+                  placeholder="Enter your text here..."
+                  className="min-h-[400px] text-lg p-4"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-xl font-semibold">Email Address</label>
+                <Textarea
+                 
+                  placeholder="Enter email address..."
+                  className="min-h-[100px] resize-none text-lg p-4"
+                />
+              </div>
+
+              <div className="flex space-x-4">
+                <Button
+                  onClick={() => {}}
+                  className="flex items-center text-lg py-6 px-8"
+                  size="lg"
+                >
+                  Copy Text
+                </Button>
+
+                <Button
+                  onClick={() => {}}
+                  variant="default"
+                  className="flex items-center text-lg py-6 px-8"
+                  size="lg"
+                >
+                  <Mail className="w-6 h-6 mr-3" />
+                  Send Email
+                </Button>
+              </div>
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Cost Chart</CardTitle>
+                <CardDescription>Sticker Price vs Calculated</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{desktop: {
+  label: "Desktop",
+  color: "rgb(0, 0, 255)" // Blue
+},
+mobile: {
+  label: "Mobile",
+  color: "rgb(255, 0, 0)" // Red
+},
+}
+ 
+ }>
+                  <BarChart accessibilityLayer data={ [
+
+{ month: "99284", desktop: 3253 , mobile: 2579 },
+
+{ month: "99284", desktop: 1748, mobile: 1676 },
+
+{ month: "81025", desktop: 120, mobile: 117 },
+
+{ month: "81025", desktop: 230, mobile: 76},
+
+{ month: "96374", desktop: 434, mobile: 222 },
+
+{ month: "96374", desktop: 200, mobile: 175 },
+
+]}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent indicator="dashed" />}
+                    />
+                    <Bar
+                      dataKey="desktop"
+                      fill="var(--color-desktop)"
+                      radius={4}
+                    />
+                    <Bar
+                      dataKey="mobile"
+                      fill="var(--color-mobile)"
+                      radius={4}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+              <CardFooter className="flex-col items-start gap-2 text-sm">
+                <div className="flex gap-2 font-medium leading-none">
+                  Trending up by 5.2% this month{" "}
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+                <div className="leading-none text-muted-foreground">
+                  Showing total visitors for the last 6 months
+                </div>
+              </CardFooter>
+            </Card>
           </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Email Address</label>
-            <Textarea
-              //value={emailAddress}
-             // onChange={(e) => setEmailAddress(e.target.value)}
-              placeholder="Enter email address..."
-              className="min-h-[40px] resize-none"
-            />
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button
-            //  onClick={handleCopy}
-              className="flex items-center"
-            >
-              Copy Text
-            </Button>
-            
-            <Button
-          //    onClick={handleEmail}
-              variant="default"
-              className="flex items-center"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              Send Email
-            </Button>
-          </div>
-        </div>
         ) : null}
       </div>
     </>

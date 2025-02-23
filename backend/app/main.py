@@ -75,10 +75,11 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
         print(desc2CPT(df=dataFrame,inputDesc= firstEl["name"]))
         print("Adding Codes if No Codes")
         oldCostList = addCPTCodes(itemList, dataFrame=dataFrame)
-        print(oldCostList)
+        # print(oldCostList)
+        print("With all cpt codes in:", oldCostList)
         
         print("Scrapping through data and getting the average Cost")
-        newCostList = get_real_cost_list(oldCostList)
+        newCostList = get_new_cost_list(oldCostList) #FARZEEN WORK
         print(newCostList)
         
         
@@ -311,18 +312,22 @@ def get_desc(df, CPT: str) -> str:
     desc = df[df["CPT"] == CPT]["Description"].values[0]
     return desc
 
-def get_real_cost_list(items):
+def get_new_cost_list(items):
     outputList = []
     for item in items:
-        cmsRes = fetch_cms_data(item["cost"])
-        print(cmsRes[1]-cmsRes[0])
-        line_item = {"cost" : cmsRes[1]-cmsRes[0], #IDK IF THIS IS RIGHT?
+        print("iterated")
+        cmsRes = fetch_cms_data(item["code"])
+        print("total cost", cmsRes[0])
+        print("Medicare payment", cmsRes[1])
+        
+        line_item = {"cost" : cmsRes[0]-cmsRes[1], #IDK IF THIS IS RIGHT?
                     "name" : item["name"],
                     "code" : item["code"]
                     } 
         print(line_item)
         outputList.append(line_item)
-        time.sleep(.2)
+        # time.sleep(.2)
+    
     
     return outputList
         
@@ -489,7 +494,6 @@ async def result(id: UUID):
     if id not in videos:
         raise HTTPException(status_code=404, detail="Video not found")
    
-
     return id
 
 if __name__ == "__main__":
