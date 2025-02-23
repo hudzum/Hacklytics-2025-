@@ -172,8 +172,9 @@ Jane Doe`
 
               <div className="flex space-x-4">
                 <Button
+                  style={{ transition: "all 0.3s ease-in-out" }}
+                  className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
                   onClick={() => {}}
-                  className="flex items-center text-lg py-6 px-8"
                   size="lg"
                 >
                   Copy Text
@@ -182,7 +183,8 @@ Jane Doe`
                 <Button
                   onClick={() => {}}
                   variant="default"
-                  className="flex items-center text-lg py-6 px-8"
+                 style={{ transition: "all 0.3s ease-in-out" }}
+                  className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
                   size="lg"
                 >
                   <Mail className="w-6 h-6 mr-3" />
@@ -248,13 +250,8 @@ mobile: {
                 </ChartContainer>
               </CardContent>
               <CardFooter className="flex-col items-start gap-2 text-sm">
-                <div className="flex gap-2 font-medium leading-none">
-                  Trending up by 5.2% this month{" "}
-                  <TrendingUp className="h-4 w-4" />
-                </div>
-                <div className="leading-none text-muted-foreground">
-                  Showing total visitors for the last 6 months
-                </div>
+             
+               
               </CardFooter>
             </Card>
           </div>
