@@ -34,7 +34,7 @@ const LandingPage = ({
           {/* Logo */}
           <div className="flex items-center gap-4">
             <img
-              src="/src/assets/images/ClaimCure.png"
+              src="/assets/images/ClaimCure.png"
               alt="Logo"
               className="h-12 w-auto"
             />
@@ -114,7 +114,7 @@ const LandingPage = ({
                   <HoverCard
                     title="The Burden of Medical Debt"
                     description={`"Approximately 14 million people (6% of adults) in the U.S. owe over $1,000 in medical debt and about 3 million people (1% of adults) owe medical debt of more than $10,000.” – ILR, Cornell University`}
-                    imageSrc="/src/assets/images/Card1.png"
+                    imageSrc="/assets/images/Card1.png"
                   />
                 </div>
                 <div className="md:w-1/3" />
@@ -125,7 +125,7 @@ const LandingPage = ({
                   <HoverCard
                     title="The Medical Debt Crisis"
                     description={`"100 million Americans owe $220 billion in medical debt.” – Consumer Financial Protection Bureau`}
-                    imageSrc="/src/assets/images/Card2.png"
+                    imageSrc="/assets/images/Card2.png"
                   />
                 </div>
               </div>
@@ -134,7 +134,7 @@ const LandingPage = ({
                   <HoverCard
                     title="The Cost of Overcharging"
                     description={`"The 100 most expensive U.S. hospitals charge from $1,129 to $1,808 for every $100 of their costs. Nationally, U.S. hospitals average $417 for every $100 of their costs, a markup that has more than doubled over the past 20 years.” – National Nurses United`}
-                    imageSrc="/src/assets/images/Card3.png"
+                    imageSrc="/assets/images/Card3.png"
                   />
                 </div>
                 <div className="md:w-1/3" />
@@ -143,18 +143,18 @@ const LandingPage = ({
                 <div className="md:w-1/3 hidden md:block" />
                 <div className="md:w-2/3 md:pl-8">
                   <HoverCard
-                    title="Introducing ChargeZero"
-                    description="Understanding your struggle, with the help of AI, ChargeZero is here to ensure fairness and reduce the burden of medical debt."
-                    imageSrc="/src/images/feature4.jpg"
+                    title="Introducing ClaimCure"
+                    description="Understanding your struggle, with the help of AI, ClaimCure is here to ensure fairness and reduce the burden of medical debt."
+                    imageSrc="/images/feature4.jpg"
                   />
                 </div>
               </div>
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-2/3 md:pr-8 mb-6 md:mb-0">
                   <HoverCard
-                    title="How ChargeZero Operates"
+                    title="How ClaimCure Operates"
                     description="Our smart technology analyzes your charges, identifies potential overbilling, generates and sends personalized dispute emails to hospitals on your behalf—helping you challenge excessive charges and secure fairer billing."
-                    imageSrc="/src/images/feature5.jpg"
+                    imageSrc="/images/feature5.jpg"
                   />
                 </div>
                 <div className="md:w-1/3" />
