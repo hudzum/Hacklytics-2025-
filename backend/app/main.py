@@ -68,7 +68,7 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
 
         dataFrame = get_data()
         firstEl = itemList[0]
-        print(desc2CPT(df=dataFrame,inputDesc= firstEl["code"]) )
+        print(desc2CPT(df=dataFrame,inputDesc= firstEl["code"]))
         print("Adding Codes if No Codes")
         itemListCode = addCPTCodes(itemList, dataFrame=dataFrame)
         print("Chatgpt fjao;ifjwe;o")
@@ -220,7 +220,7 @@ def compare_prices(list_items, bill_price: int, fair_price: int):
         return 3  # Too high (possible fraud)
 
 
-def addCPTCodes(list_items, dataFrame):
+def addCPTCodes(list_items, dataFrame) -> list:
     try:
         newList = []
 
