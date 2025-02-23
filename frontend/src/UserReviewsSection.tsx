@@ -100,7 +100,7 @@ export function UserReviewsSection() {
             variant="outline"
             onClick={handleAddReviewClick}
             style={{ transition: 'all 0.3s ease-in-out' }}
-          className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+          className="border border-black text-white bg-blue-300 hover:bg-red-300 hover:text-white"
           >
             {showForm ? "Cancel" : "Add User Review"}
           </Button>
@@ -158,7 +158,7 @@ export function UserReviewsSection() {
             <Button
               type="submit"
               style={{ transition: 'all 0.3s ease-in-out' }}
-            className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+            className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
             >
               Submit Review
             </Button>

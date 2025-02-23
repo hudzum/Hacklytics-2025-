@@ -29,7 +29,7 @@ const LandingPage = ({
     <div className="w-full min-h-screen relative">
       
       {/* Fixed Navigation Bar */}
-      <nav className="fixed top-0 left-0 w-full bg-white/60 backdrop-blur-md shadow-md z-50">
+      <nav className="fixed top-0 left-0 w-full bg-white/50 backdrop-blur-md shadow-md z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-4">
@@ -48,28 +48,28 @@ const LandingPage = ({
           <div className="flex gap-4">
             <Button
               style={{ transition: 'all 0.3s ease-in-out' }}
-              className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+              className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
               onClick={() => scrollToSection("features-section")}
             >
               About Us
             </Button>
             <Button
               style={{ transition: 'all 0.3s ease-in-out' }}
-              className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+              className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
               onClick={() => scrollToSection("hero-section")}
             >
               Start Saving Now
             </Button>
             <Button
               style={{ transition: 'all 0.3s ease-in-out' }}
-              className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+              className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
               onClick={() => scrollToSection("user-reviews")}
             >
               User Reviews
             </Button>
             <Button
               style={{ transition: 'all 0.3s ease-in-out' }}
-              className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+              className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
               onClick={() => scrollToSection("contact-section")}
             >
               Contact Us
@@ -77,18 +77,20 @@ const LandingPage = ({
           </div>
         </div>
       </nav>
-      
       {/* HERO SECTION */}
-      <div className="mt-[120px] px-6 py-20">
-        <div className="mx-auto max-w-7xl bg-[radial-gradient(circle,_#ebf8ff_0%,_#ffffff_100%)] rounded-lg p-8 my-8">
-          <div id="hero-section" className="overflow-hidden py-12">
-            <h1 className="text-center text-3xl font-bold mb-8">
-              Your Favorite Money Saving AI Bot
+      <div id="hero-section" className="overflow-hidden">
+        <div className="bg-[url('/assets/images/AI_BACKGROUND.jpg')] bg-cover bg-center h-screen w-full bg-opacity-50">
+        <h1 className="text-center text-6xl md:text-8xl lg:text-9xl font-bold leading-[1.1] pt-50 text-black ai-glow">
+              Your AI Advocate <br /> for Lower Medical Bills
             </h1>
+            <p className="text-center italic text-2xl text-gray-600 font-[Cormorant Garamond] my-6">
+              Heal with care, pay what's fair!
+            </p>
             <div className="flex justify-center">
+            <h1 className="text-white text-4xl flex justify-center items-center h-full"></h1>
               <Button
                 style={{ transition: 'all 0.3s ease-in-out' }}
-                className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+                className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
                 onClick={handleGetStarted}
               >
                 Get Started
@@ -96,7 +98,6 @@ const LandingPage = ({
             </div>
           </div>
         </div>
-      </div>
       
       {/* FEATURES SECTION */}
       <div className="px-6">
@@ -186,7 +187,7 @@ const LandingPage = ({
       <div className="absolute bottom-2 right-4">
         <Button
           style={{ transition: 'all 0.3s ease-in-out' }}
-          className="border border-white text-black bg-transparent hover:bg-red-300 hover:text-white"
+          className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
           onClick={handleScrollToTop}
         >
           Return to Top
