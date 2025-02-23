@@ -14,7 +14,11 @@ from sse_starlette import EventSourceResponse
 from uuid import UUID
 import mimetypes
 import json
-
+import pandas as pd
+import openpyxl
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import requests
 
 from typing import Optional, Sequence
@@ -59,14 +63,17 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
     try:
         print("Calling Document AI")
         itemList = document2JSON(project_id, location, processor_id, document_bytes ,extension, field_mask, processor_version_id, mimetype)
+        print(itemList)
         print("Completed Document Scan")
 
-        print("Calling CMS API")
-
-        print("Chatgpt")
-
+        dataFrame = get_data()
+        firstEl = itemList[0]
+        print(desc2CPT(df=dataFrame,inputDesc= firstEl["code"]) )
+        print("Adding Codes if No Codes")
+        itemListCode = addCPTCodes(itemList, dataFrame=dataFrame)
+        print("Chatgpt fjao;ifjwe;o")
+        print(itemListCode)
         
-        something = fetch_cms_data()
 
 
 
@@ -78,7 +85,7 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
         logger.error(e)
         with queues_lock:
             # Send failure
-            queues[id].put_nowait({ "result": "fail", "message": "Failed Overal" })
+            queues[id].put_nowait({ "result": "fail", "message": "Failed Overall" })
     finally:
         with queues_lock:
             del queues[id]
@@ -151,7 +158,7 @@ def document2JSON(
         document = result.document
         print("PRinging form field2")
 
-        document_dict = documentai.Document.to_dict(document)
+        #document_dict = documentai.Document.to_dict(document)
         result2 =[]
         for entity in document.entities:
             cost = None
@@ -176,11 +183,8 @@ def document2JSON(
                     "code" :code
                     }
             result2.append(line_itme)
-              
       
        
-        print(len(result2))
-        print(result2)
         return result2
         
     
@@ -192,7 +196,96 @@ def document2JSON(
             queues[id].put_nowait({ "result": "fail", "message": "Failed at Process Document" })
     finally:
         user_document_file.close()
-      
+     
+
+     
+
+def compare_prices(list_items, bill_price: int, fair_price: int):
+    """
+    Categorizes the bill price based on how much it exceeds the fair price.
+    :param bill_price: The price given on the bill.
+    :param fair_price: The expected fair price.
+    :return: 
+        1 if the bill price is in the range [fair_price, fair_price * 1.10]
+        2 if the bill price is in the range (fair_price * 1.10, fair_price * 2.5]
+        3 if the bill price is above fair_price * 2.5
+    """
+    first_threshold = 1.5
+    second_threshold = 3
+    if fair_price <= bill_price <= fair_price * first_threshold:
+        return 1  # Slightly above expected price (acceptable range)
+    elif fair_price * first_threshold < bill_price <= fair_price *second_threshold:
+        return 2  # Moderately above expected price (suspicious)
+    else:
+        return 3  # Too high (possible fraud)
+
+
+def addCPTCodes(list_items, dataFrame):
+    try:
+        newList = []
+
+        print("We have entered function")
+        print("items in list: ", len(list_items))
+        for list_item in list_items:
+            if list_item["code"] is None:
+                cost = list_item["cost"]
+                cpt_code = desc2CPT(dataFrame,list_item["name"]) 
+                print("cpt_code: ", cpt_code)
+                name = list_item["name"]
+                
+                line_item = {"cost" :cost,
+                                    "name" :name,
+                                    "code" :cpt_code
+                                    }  
+                print("Checking assignment: ", line_item["code"])
+                newList.append(line_item)              
+                #use and extract price from apii
+            else:
+                newList.append(line_item)
+
+
+        # print(list_items)
+    except Exception as e:
+        logger.error(e) 
+    finally:
+        return newList 
+     
+def get_data():
+    try:
+    # Read data from Excel file
+        print("Current Working Directory: ", os.getcwd())
+        df = pd.read_excel('CPTtoDesc.xlsx')
+        df["Description"] = df["Description"].apply(lambda x: (re.sub(r'[^\w\s]', '', x)))
+        df["Description"] = df["Description"].apply(lambda x: x.lower())
+        return df
+    except Exception as e:
+        print("failed in get data")
+        print(e)
+        logger.error(e)  
+
+def desc2CPT(df, inputDesc: str) -> str:
+     
+    # make input lowercase
+    inputDesc = inputDesc.lower()
+    # remove punctuation
+    inputDesc = re.sub(r'[^\w\s]', '', inputDesc)
+    # vectorize the input
+    vectorizer = TfidfVectorizer()
+    X = vectorizer.fit_transform(df["Description"])
+    inputVec = vectorizer.transform([inputDesc])
+    # calculate cosine similarity
+    cosineSimilarities = cosine_similarity(inputVec, X)
+    # get the index of the most similar description
+    index = cosineSimilarities.argmax()
+    # get the CPT code of the most similar description
+    CPT = df.iloc[index]["CPT"]
+    return CPT
+
+def get_desc(df, CPT: str) -> str:
+    # get the description of the CPT code
+    desc = df[df["CPT"] == CPT]["Description"].values[0]
+    return desc
+
 
 
 #returns list wehre first double is average of Avg_Sbmtd_Chrg(charge before insurance) and the second oen is Avg_Mdcr_Pymt_Amt which is the total amount the patient needs to pay our of pocket
