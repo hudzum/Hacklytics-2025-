@@ -25,11 +25,31 @@ const AppPage = () => {
 
   return (
     <>
+      <nav className="fixed top-0  w-full bg-white/50 backdrop-blur-md shadow-md z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-4">
+            <img
+              src="/assets/images/ClaimCure.png"
+              alt="Logo"
+              className="h-12 w-auto"
+            />
+            <span className="claimcure text-3xl font-bold">
+              <span className="claim">Claim</span>
+              <span className="cure">Cure</span>
+            </span>
+          </div>
+
+         
+        </div>
+      </nav>
       <div>
         {state.state === "upload" || state.state === "uploading" ? (
           <div>
-            <h1>Upload your file Here</h1>
+           <h1 className="text-2xl font-semibold mb-4">Upload Your Medical Bill Here</h1>
+           <div className = "m-4">
             <Dropzone
+             
               onDrop={(files) => {
                 if (files[0]) {
                   setDocument(files[0]);
@@ -66,6 +86,7 @@ const AppPage = () => {
                 </section>
               )}
             </Dropzone>
+            </div>
             {document && (
               <aside className="mt-4">
                 <h4 className="text-lg font-semibold text-gray-800">
@@ -79,8 +100,8 @@ const AppPage = () => {
               </aside>
             )}
             <Button
-              variant="outline"
-              size="lg"
+              style={{ transition: 'all 0.3s ease-in-out' }}
+              className="border border-white text-white bg-blue-300 hover:bg-red-300 hover:text-white"
               onClick={async () => {
                 setState({ state: "uploading" });
 
@@ -182,7 +203,7 @@ const AppPage = () => {
         ) : state.state === "result" ? (
           <div className="w-full max-w-2xl mx-auto space-y-4 p-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Main Text</label>
+            <label className="text-sm font-medium">Negotiation script</label>
             <Textarea
               //value={} 
               //onChange={(e) => setMainText(e.target.value)}
