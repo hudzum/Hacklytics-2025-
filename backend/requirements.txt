@@ -6,3 +6,7 @@ uvicorn==0.27.0.post1
 multipledispatch==1.0.0
 sse_starlette==2.0.0
 google-cloud-documentai==3.0.0
+pandas
+openpyxl
+scikit-learn
+requests
