@@ -11,3 +11,4 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/backend/service-account-file.json
     volumes:
       - ./backend/service-account-file.json:/backend/app/service-account-file.json
+      - ./backend/CPTtoDesc.xlsx:/backend/app/CPTtoDesc.xlsx

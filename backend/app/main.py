@@ -25,7 +25,10 @@ from typing import Optional, Sequence
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai  # type: ignore
 
+from dotenv import load_dotenv
 from openai import OpenAI
+
+load_dotenv(".env")
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./service-account-file.json"
 OUT_EXT = ".mp4"
@@ -69,19 +72,40 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
 
         dataFrame = get_data()
         firstEl = itemList[0]
-        print(desc2CPT(df=dataFrame,inputDesc= firstEl["code"]))
+        print(desc2CPT(df=dataFrame,inputDesc= firstEl["name"]))
         print("Adding Codes if No Codes")
-        itemListCode = addCPTCodes(itemList, dataFrame=dataFrame)
-        print("Chatgpt fjao;ifjwe;o")
-        print(itemListCode)
+        oldCostList = addCPTCodes(itemList, dataFrame=dataFrame)
+        print(oldCostList)
+        
+        print("Scrapping through data and getting the average Cost")
+        newCostList = get_real_cost_list(oldCostList)
+        print(newCostList)
         
         
-
+        print("Gathering LLM Input")
+        gpt_input = [["Hospital Name", "Name"]]
+        
+        for i in range(len(newCostList)):
+            currentNewCost = newCostList[i]
+            print(currentNewCost)
+            currentOldCost = oldCostList[i]
+            print(currentOldCost)
+            inputPart = [currentNewCost["cost"], #Expected
+                         currentNewCost["cost"]-currentOldCost["cost"],
+                         currentNewCost["code"]]
+            print(inputPart)
+            gpt_input.append(inputPart)
+        
+        print(gpt_input)
+        #print("Generating Email")
+        #email = generate_email(, os.getenv('HUDSONS_VAR'))
+        
+        email = "hi"
 
 
         with queues_lock:
             # Replace the object with real results
-            queues[id].put_nowait({ "result": "success", "feedback": feedback, "email_text": result_video_file }) #Whatever outputs we want 
+            queues[id].put_nowait({ "result": "success", "oldCostList":oldCostList , "newCostList": newCostList, "email": email }) #Whatever outputs we want 
     except Exception as e:
         logger.error(e)
         with queues_lock:
@@ -105,9 +129,9 @@ def document2JSON(
    
     try:
         # Analyze video here
-        print("writing vid")
+        #print("writing vid")
         user_document_file = tempfile.NamedTemporaryFile(suffix=extension)
-        print("EXTENSION" + extension)
+        #print("EXTENSION" + extension)
         user_document_file.write(document)
         user_document_file.flush()
         
@@ -157,7 +181,6 @@ def document2JSON(
         # For a full list of `Document` object attributes, reference this page:
         # https://cloud.google.com/document-ai/docs/reference/rest/v1/Document
         document = result.document
-        print("PRinging form field2")
 
         #document_dict = documentai.Document.to_dict(document)
         result2 =[]
@@ -225,26 +248,27 @@ def addCPTCodes(list_items, dataFrame) -> list:
     try:
         newList = []
 
-        print("We have entered function")
+        #print("We have entered function")
         print("items in list: ", len(list_items))
         for list_item in list_items:
             if list_item["code"] is None:
                 cost = list_item["cost"]
+                
                 cpt_code = desc2CPT(dataFrame,list_item["name"]) 
-                print("cpt_code: ", cpt_code)
+               # print("cpt_code: ", cpt_code)
                 name = list_item["name"]
                 
                 line_item = {"cost" :cost,
                                     "name" :name,
                                     "code" :cpt_code
                                     }  
-                print("Checking assignment: ", line_item["code"])
+                #print("Checking assignment: ", line_item["code"])
                 newList.append(line_item)              
                 #use and extract price from apii
             else:
-                newList.append(line_item)
+                newList.append(list_item)
 
-
+        return newList
         # print(list_items)
     except Exception as e:
         logger.error(e) 
@@ -254,7 +278,7 @@ def addCPTCodes(list_items, dataFrame) -> list:
 def get_data():
     try:
     # Read data from Excel file
-        print("Current Working Directory: ", os.getcwd())
+        #print("Current Working Directory: ", os.getcwd())
         df = pd.read_excel('./CPTtoDesc.xlsx')
         df["Description"] = df["Description"].apply(lambda x: (re.sub(r'[^\w\s]', '', x)))
         df["Description"] = df["Description"].apply(lambda x: x.lower())
@@ -287,7 +311,22 @@ def get_desc(df, CPT: str) -> str:
     desc = df[df["CPT"] == CPT]["Description"].values[0]
     return desc
 
-
+def get_real_cost_list(items):
+    outputList = []
+    for item in items:
+        cmsRes = fetch_cms_data(item["cost"])
+        print(cmsRes[1]-cmsRes[0])
+        line_item = {"cost" : cmsRes[1]-cmsRes[0], #IDK IF THIS IS RIGHT?
+                    "name" : item["name"],
+                    "code" : item["code"]
+                    } 
+        print(line_item)
+        outputList.append(line_item)
+        time.sleep(.2)
+    
+    return outputList
+        
+        
 
 #returns list wehre first double is average of Avg_Sbmtd_Chrg(charge before insurance) and the second oen is Avg_Mdcr_Pymt_Amt which is the total amount the patient needs to pay our of pocket
 def fetch_cms_data(cpt_code):
@@ -344,27 +383,27 @@ def generate_email(input, open_ai_key):
             {"role": "system", "content": "Do not send this in markdown format"},
             {"role":"assistant", "content": """Example Input:Here are some of the bill details: Name: John Doe. Hospital: General Hospital
              For 384742, ask if you could pay 473 instead.
-For 43212, ask if you could pay 65% of its original cost instead.
-For 34554, ask if you could pay 102 instead.
+            For 43212, ask if you could pay 65% of its original cost instead.
+            For 34554, ask if you could pay 102 instead.
 
-Example Output:
-Subject: Request for Review and Adjustment of Hospital Bill for John Doe
+            Example Output:
+            Subject: Request for Review and Adjustment of Hospital Bill for John Doe
 
-Dear [Recipient's Name or Billing Department],
+            Dear [Recipient's Name or Billing Department],
 
-I am writing to discuss the hospital bill for my recent visit under the name John Doe. I greatly appreciate the care I received and am committed to settling the bill promptly. However, I have concerns about a few items that seem to be priced higher than expected.
+            I am writing to discuss the hospital bill for my recent visit under the name John Doe. I greatly appreciate the care I received and am committed to settling the bill promptly. However, I have concerns about a few items that seem to be priced higher than expected.
 
-1. CPT Code 384742: Currently listed at a higher amount. Would it be possible to adjust this to $473?
+            1. CPT Code 384742: Currently listed at a higher amount. Would it be possible to adjust this to $473?
 
-2. CPT Code 43212: I propose to pay 65% of the original cost for this item, considering its current pricing.
+            2. CPT Code 43212: I propose to pay 65% of the original cost for this item, considering its current pricing.
 
-3. CPT Code 34554: Could you kindly consider adjusting this charge to $102?
+            3. CPT Code 34554: Could you kindly consider adjusting this charge to $102?
 
-Having compared these amounts with standard rates typically associated with these CPT codes, I believe there may be an opportunity to adjust the charges accordingly. I understand that billing can be complex, and I am hopeful that we can reach an agreement. I am eager to resolve this promptly and amicably. Thank you for your attention to this matter. Please let me know how we can proceed with these adjustments.
+            Having compared these amounts with standard rates typically associated with these CPT codes, I believe there may be an opportunity to adjust the charges accordingly. I understand that billing can be complex, and I am hopeful that we can reach an agreement. I am eager to resolve this promptly and amicably. Thank you for your attention to this matter. Please let me know how we can proceed with these adjustments.
 
-Warm regards,
-John Doe"
-"""
+            Warm regards,
+            John Doe"
+            """
              },
                          {"role": "user", "content": f"{prompt_message}"}
         ]
@@ -435,10 +474,8 @@ async def wait_for_analyze(id: UUID, request: Request):
                 "data": json.dumps(result)
             }
             return
+
         
-        result_video_file = result["email_text"]
-        videos[id] = result_video_file
-        del result["video_file"]
         
         yield {
             "event": "message",
