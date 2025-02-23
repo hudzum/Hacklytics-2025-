@@ -11,4 +11,4 @@ EXPOSE 80
 #CMD ["fastapi", "run", "app/main.py", "--port", "80"]
 ENV GOOGLE_APPLICATION_CREDENTIALS=/backend/service-account-file.json
 COPY service-account-file.json /app/
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+CMD ["fastapi", "run", "app/__init__.py", "--port", "80"]
