@@ -85,28 +85,36 @@ def full_analyze(id: UUID, document_bytes: bytes, extension: str, mimetype: str)
         
         print("Gathering LLM Input")
         gpt_input = [["Hospital Name", "Name"]]
+        print(len(newCostList))
         
         for i in range(len(newCostList)):
             currentNewCost = newCostList[i]
-            print(currentNewCost)
+            NC = currentNewCost["cost"]
+            
             currentOldCost = oldCostList[i]
-            print(currentOldCost)
-            inputPart = [currentNewCost["cost"], #Expected
-                         currentNewCost["cost"]-currentOldCost["cost"],
-                         currentNewCost["code"]]
+            OC = currentOldCost["cost"]
+            
+            if isinstance(currentNewCost["cost"], str):
+                NC = convert_to_float(currentNewCost["cost"])
+            if isinstance(currentOldCost["cost"], str):
+                OC= convert_to_float(currentOldCost["cost"])
+            
+            print(currentOldCost, currentNewCost)
+            inputPart = [NC, #Expected
+                         NC-OC, #Difference
+                         currentNewCost["code"]] #Code
             print(inputPart)
             gpt_input.append(inputPart)
         
         print(gpt_input)
-        #print("Generating Email")
-        #email = generate_email(, os.getenv('HUDSONS_VAR'))
+        print("Generating Email")
+        email = generate_email(input=gpt_input,open_ai_key= os.getenv('HUDSONS_VAR') )
         
-        email = "hi"
 
 
         with queues_lock:
             # Replace the object with real results
-            queues[id].put_nowait({ "result": "success", "oldCostList":oldCostList , "newCostList": newCostList, "email": email }) #Whatever outputs we want 
+            queues[id].put_nowait({ "result": "success", "oldCostList":oldCostList , "newCostList": newCostList, "email": email, "message":"WEE DID IT" }) #Whatever outputs we want 
     except Exception as e:
         logger.error(e)
         with queues_lock:
@@ -316,7 +324,12 @@ def get_new_cost_list(items):
     outputList = []
     for item in items:
         print("iterated")
+        
         cmsRes = fetch_cms_data(item["code"])
+        if cmsRes == None:
+            
+            outputList.append(item)
+            continue
         print("total cost", cmsRes[0])
         print("Medicare payment", cmsRes[1])
         
@@ -327,7 +340,6 @@ def get_new_cost_list(items):
         print(line_item)
         outputList.append(line_item)
         # time.sleep(.2)
-    
     
     return outputList
         
@@ -366,55 +378,67 @@ def fetch_cms_data(cpt_code):
         return None
 
 
-
+def convert_to_float(s):
+    try:
+        # Remove commas and convert to float
+        return float(s.replace(',', ''))
+    except ValueError:
+        # Handle invalid input
+        print(f"Error: Cannot convert '{s}' to float.")
+        return None
+    
 def generate_email(input, open_ai_key):
-        
-    client = OpenAI(api_key=open_ai_key)
-    print("passed hudsons var check")
+    try:
+        client = OpenAI(api_key=open_ai_key)
+        print("passed hudsons var check")
 
-    prompt_message = "Here are some of the bill details: "
-    prompt_message += f"Name: {input[0][0]}. Hospital: {input[0][1]}\n"
-    for item in input[1:]:
-        if item[1] > item[0] * 0.50:
-            prompt_message += f"For {item[2]}, ask if you could pay 65% of its original cost instead.\n"
-        else:
-            prompt_message += f"For {item[2]}, ask if you could pay {item[0]} instead.\n" 
-    print(prompt_message)
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "assistant", "content": "You are a chatbot tasked with negotiating a hospital bill that contains overpriced items. For each item, you will be provided with its CPT (Current Procedural Terminology) code along with the new, fair price"},
-            {"role": "assistant", "content": "Kindly ask the hospital if they could adjust the prices based on these new, reduced rates so the bill can be paid upfront. Ensure your tone is courteous and professional. Additional details will follow."},
-            {"role": "system", "content": "Do not send this in markdown format"},
-            {"role":"assistant", "content": """Example Input:Here are some of the bill details: Name: John Doe. Hospital: General Hospital
-             For 384742, ask if you could pay 473 instead.
-            For 43212, ask if you could pay 65% of its original cost instead.
-            For 34554, ask if you could pay 102 instead.
+        prompt_message = "Here are some of the bill details: "
+        prompt_message += f"Name: {input[0][0]}. Hospital: {input[0][1]}\n"
+        for item in input[1:]:
+            if item[1] > item[0] * 0.50:
+                prompt_message += f"For {item[2]}, ask if you could pay 65% of its original cost instead.\n"
+            else:
+                prompt_message += f"For {item[2]}, ask if you could pay {item[0]} instead.\n" 
+        print(prompt_message)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "assistant", "content": "You are a chatbot tasked with negotiating a hospital bill that contains overpriced items. For each item, you will be provided with its CPT (Current Procedural Terminology) code along with the new, fair price"},
+                {"role": "assistant", "content": "Kindly ask the hospital if they could adjust the prices based on these new, reduced rates so the bill can be paid upfront. Ensure your tone is courteous and professional. Additional details will follow."},
+                {"role": "system", "content": "Do not send this in markdown format"},
+                {"role":"assistant", "content": """Example Input:Here are some of the bill details: Name: John Doe. Hospital: General Hospital
+                For 384742, ask if you could pay 473 instead.
+                For 43212, ask if you could pay 65% of its original cost instead.
+                For 34554, ask if you could pay 102 instead.
 
-            Example Output:
-            Subject: Request for Review and Adjustment of Hospital Bill for John Doe
+                Example Output:
+                Subject: Request for Review and Adjustment of Hospital Bill for John Doe
 
-            Dear [Recipient's Name or Billing Department],
+                Dear [Recipient's Name or Billing Department],
 
-            I am writing to discuss the hospital bill for my recent visit under the name John Doe. I greatly appreciate the care I received and am committed to settling the bill promptly. However, I have concerns about a few items that seem to be priced higher than expected.
+                I am writing to discuss the hospital bill for my recent visit under the name John Doe. I greatly appreciate the care I received and am committed to settling the bill promptly. However, I have concerns about a few items that seem to be priced higher than expected.
 
-            1. CPT Code 384742: Currently listed at a higher amount. Would it be possible to adjust this to $473?
+                1. CPT Code 384742: Currently listed at a higher amount. Would it be possible to adjust this to $473?
 
-            2. CPT Code 43212: I propose to pay 65% of the original cost for this item, considering its current pricing.
+                2. CPT Code 43212: I propose to pay 65% of the original cost for this item, considering its current pricing.
 
-            3. CPT Code 34554: Could you kindly consider adjusting this charge to $102?
+                3. CPT Code 34554: Could you kindly consider adjusting this charge to $102?
 
-            Having compared these amounts with standard rates typically associated with these CPT codes, I believe there may be an opportunity to adjust the charges accordingly. I understand that billing can be complex, and I am hopeful that we can reach an agreement. I am eager to resolve this promptly and amicably. Thank you for your attention to this matter. Please let me know how we can proceed with these adjustments.
+                Having compared these amounts with standard rates typically associated with these CPT codes, I believe there may be an opportunity to adjust the charges accordingly. I understand that billing can be complex, and I am hopeful that we can reach an agreement. I am eager to resolve this promptly and amicably. Thank you for your attention to this matter. Please let me know how we can proceed with these adjustments.
 
-            Warm regards,
-            John Doe"
-            """
-             },
-                         {"role": "user", "content": f"{prompt_message}"}
-        ]
-    )
-    response_str = ("\n\nHere is Your Custom Negotiation Email. Please fill it out and send it to your hospital or insurance:\n" + response.choices[0].message.content)            
-    return response_str
+                Warm regards,
+                John Doe"
+                """
+                },
+                            {"role": "user", "content": f"{prompt_message}"}
+            ]
+        )
+        response_str = ("\n\nHere is Your Custom Negotiation Email. Please fill it out and send it to your hospital or insurance:\n" + response.choices[0].message.content)            
+        return response_str
+    except Exception as e:
+        print(e)
+        logger.error(e)
+        print(e)
 
 def get_queue(id: UUID) -> Queue:
     logger.info(f"Getting queue {id}")
@@ -481,7 +505,8 @@ async def wait_for_analyze(id: UUID, request: Request):
             return
 
         
-        
+        print("THat SHIT PASSED")
+        print(result)
         yield {
             "event": "message",
             "data": json.dumps(result)
@@ -489,12 +514,9 @@ async def wait_for_analyze(id: UUID, request: Request):
 
     return EventSourceResponse(event_generator())
 
-@app.get("/result/{id}", response_class=StreamingResponse)
+@app.get("/result/{id}")
 async def result(id: UUID):
-    if id not in videos:
-        raise HTTPException(status_code=404, detail="Video not found")
-   
-    return id
+    return {"Hello": "World"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))

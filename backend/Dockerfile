@@ -13,4 +13,5 @@ EXPOSE 80
 COPY CPTtoDesc.xlsx /app/
 ENV GOOGLE_APPLICATION_CREDENTIALS=/backend/service-account-file.json
 COPY service-account-file.json /app/
+COPY .env /app/
 CMD ["fastapi", "run", "app/main.py", "--port", "80"]

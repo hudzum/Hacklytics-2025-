@@ -12,3 +12,4 @@ services:
     volumes:
       - ./backend/service-account-file.json:/backend/app/service-account-file.json
       - ./backend/CPTtoDesc.xlsx:/backend/app/CPTtoDesc.xlsx
+      - ./backend/CPTtoDesc.xlsx:/backend/app/.env
