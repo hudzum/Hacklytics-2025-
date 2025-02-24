@@ -1,6 +1,6 @@
 # 🏥 ClaimCure
 
-**Heal with care, pay what's fair.**
+**Heal with care, pay what's fair. - Built at Hacklytics 2025**
 
 ClaimCure is an AI-powered medical bill negotiator designed to ensure you never overpay for healthcare. With our application, you can upload an image of your medical bill—ideally itemized—and let our app work its magic. ClaimCure parses the document for procedure descriptions, codes, and costs, comparing them against nationally gathered data to determine if the price you received is fair.
 
